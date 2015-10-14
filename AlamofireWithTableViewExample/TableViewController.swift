@@ -11,7 +11,7 @@ import Alamofire
 
 class TableViewController: UITableViewController {
     
-    var dataSource: [(name: String, description: String)] = [] // array of tuples
+    var dataSource: [(name: String, description: String)] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,7 +29,7 @@ class TableViewController: UITableViewController {
         self.refreshControl?.addTarget(self, action: "refresh:", forControlEvents: .ValueChanged)
     }
     
-    // MARK: TableViewDataSource
+    // MARK: UITableViewDataSource
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return dataSource.count
@@ -38,13 +38,13 @@ class TableViewController: UITableViewController {
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("DataCell", forIndexPath: indexPath)
         
-        let tuple = dataSource[indexPath.row];
+        let tuple = dataSource[indexPath.row]
         cell.textLabel?.text = tuple.name
         cell.detailTextLabel?.text = tuple.description
         
         return cell
     }
-    
+
     // MARK: WS
     
     func requestData() {
@@ -66,8 +66,8 @@ class TableViewController: UITableViewController {
                 guard let strongSelf = self else {
                     return
                 }
-                strongSelf.refreshControl?.endRefreshing()
                 strongSelf.tableView.reloadData()
+                strongSelf.refreshControl?.endRefreshing()
             })
         }
     }
@@ -77,5 +77,28 @@ class TableViewController: UITableViewController {
     func refresh(sender: AnyObject) {
         requestData()
     }
+    
+    // MARK: Storyboard Segues
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        guard let segueId = segue.identifier else {
+            return
+        }
+        
+        if segueId == "showDataDescription" {
+            
+            guard let indexPath = self.tableView.indexPathForSelectedRow else {
+                return
+            }
+            
+            if indexPath.row < dataSource.count {
+                let tuple = dataSource[indexPath.row]
+                
+                let dataDescController: DataDescriptionController = segue.destinationViewController as! DataDescriptionController
+                dataDescController.descriptionText = tuple.description
+            }
+        }
+    }
 }
+
 

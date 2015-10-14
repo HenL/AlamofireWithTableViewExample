@@ -61,13 +61,9 @@ class TableViewController: UITableViewController {
                 strongSelf.dataSource.append((name: key, description: value.description))
             }
             
-            dispatch_async(dispatch_get_main_queue(), { [weak self] () in
-                
-                guard let strongSelf = self else {
-                    return
-                }
-                strongSelf.tableView.reloadData()
-                strongSelf.refreshControl?.endRefreshing()
+            dispatch_async(dispatch_get_main_queue(), {
+                self?.tableView.reloadData()
+                self?.refreshControl?.endRefreshing()
             })
         }
     }
@@ -78,25 +74,19 @@ class TableViewController: UITableViewController {
         requestData()
     }
     
-    // MARK: Storyboard Segues
+    // MARK: Storyboard Segue
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        guard let segueId = segue.identifier else {
-            return
-        }
-        
-        if segueId == "showDataDescription" {
+        guard let segueId = segue.identifier, indexPath = self.tableView.indexPathForSelectedRow
+            where segueId == "showDataDescription" else {
             
-            guard let indexPath = self.tableView.indexPathForSelectedRow else {
                 return
-            }
+        }
+        if indexPath.row < dataSource.count {
+            let tuple = dataSource[indexPath.row]
             
-            if indexPath.row < dataSource.count {
-                let tuple = dataSource[indexPath.row]
-                
-                let dataDescController: DataDescriptionController = segue.destinationViewController as! DataDescriptionController
-                dataDescController.descriptionText = tuple.description
-            }
+            let dataDescController = segue.destinationViewController as! DataDescriptionController
+            dataDescController.descriptionText = tuple.description
         }
     }
 }
